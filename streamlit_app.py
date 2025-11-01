@@ -308,9 +308,51 @@ else:
                 st.info("必要な列: age, sex, K, AL, LT, ACD（大文字小文字は区別しません）")
                 st.stop()
             
+            # ★★★ 性別の変換処理を追加 ★★★
+            def convert_sex_value(value):
+                """性別を数値に変換"""
+                if pd.isna(value):
+                    return 0
+                if isinstance(value, str):
+                    v = str(value).lower().strip()
+                    if v in ['f', 'female', '女', '女性', 'woman', 'w']:
+                        return 1
+                    elif v in ['m', 'male', '男', '男性', 'man']:
+                        return 0
+                    try:
+                        return int(float(v))
+                    except:
+                        return 0
+                try:
+                    return int(float(value))
+                except:
+                    return 0
+            
+            # 性別を数値に変換
+            renamed_df['性別'] = renamed_df['性別'].apply(convert_sex_value)
+            
+            # すべての数値列を確実に数値型に変換
+            for col in ['年齢', '性別', 'K（AVG）', 'AL', 'LT', 'ACD']:
+                renamed_df[col] = pd.to_numeric(renamed_df[col], errors='coerce')
+            
+            # 変換結果を表示
+            sex_counts = renamed_df['性別'].value_counts()
+            st.info(f"✅ 性別の変換完了: 男性(0) = {sex_counts.get(0, 0)}件, 女性(1) = {sex_counts.get(1, 0)}件")
+            
+            # NaN値のチェック
+            nan_check = renamed_df[['年齢', '性別', 'K（AVG）', 'AL', 'LT', 'ACD']].isna().any(axis=1)
+            if nan_check.any():
+                st.warning(f"⚠️ {nan_check.sum()}件のデータに欠損値があります。該当行はスキップされます。")
+                renamed_df = renamed_df[~nan_check].copy()
+                st.info(f"有効なデータ: {len(renamed_df)} 件")
+            
+            if len(renamed_df) == 0:
+                st.error("❌ 有効なデータがありません")
+                st.stop()
+            
             # 予測実行ボタン
             if st.button("🔮 一括予測を実行", type="primary", use_container_width=True):
-                with st.spinner(f"{len(df)} 件のデータを予測中..."):
+                with st.spinner(f"{len(renamed_df)} 件のデータを予測中..."):
                     try:
                         # 選択したモデルを取得
                         if model_choice == 'Ensemble（推奨）':
@@ -335,14 +377,14 @@ else:
                         progress_bar = st.progress(0)
                         
                         for idx, row in renamed_df.iterrows():
-                            # 入力データの準備（内部用の列名）
+                            # 入力データの準備（明示的な型変換）
                             input_data = {
-                                '年齢': row['年齢'],
-                                '性別': row['性別'],
-                                'K（AVG）': row['K（AVG）'],
-                                'AL': row['AL'],
-                                'LT': row['LT'],
-                                'ACD': row['ACD']
+                                '年齢': float(row['年齢']),
+                                '性別': int(float(row['性別'])),
+                                'K（AVG）': float(row['K（AVG）']),
+                                'AL': float(row['AL']),
+                                'LT': float(row['LT']),
+                                'ACD': float(row['ACD'])
                             }
                             
                             # 予測実行
@@ -363,12 +405,12 @@ else:
                                 warnings_list.append(f"行{idx+1}: " + "; ".join(result['validation']['warnings']))
                             
                             # プログレスバー更新
-                            progress_bar.progress((idx + 1) / len(df))
+                            progress_bar.progress(len(predictions) / len(renamed_df))
                         
                         progress_bar.empty()
                         
                         # 結果を元のデータフレームに追加
-                        result_df = df.copy()
+                        result_df = df.loc[renamed_df.index].copy()
                         result_df['SE_p_predicted'] = predictions
                         result_df['CI_95_lower'] = lower_bounds
                         result_df['CI_95_upper'] = upper_bounds
