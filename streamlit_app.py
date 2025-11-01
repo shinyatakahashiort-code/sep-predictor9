@@ -21,12 +21,14 @@ def load_models():
         mlp = SEPredictor(model_name='MLP')
         extra_trees = SEPredictor(model_name='ExtraTrees')
         catboost = SEPredictor(model_name='CatBoost')
+        linear = SEPredictor(model_name='LinearRegression')
         ensemble = ModelEnsemble()
         
         return {
             'MLP': mlp,
             'ExtraTrees': extra_trees,
             'CatBoost': catboost,
+            'LinearRegression': linear,
             'Ensemble': ensemble
         }
     except Exception as e:
@@ -55,7 +57,7 @@ prediction_mode = st.sidebar.radio(
 
 model_choice = st.sidebar.selectbox(
     "予測モデルを選択",
-    ['Ensemble（推奨）', 'MLP', 'ExtraTrees', 'CatBoost'],
+    ['Ensemble（推奨）', 'MLP', 'ExtraTrees', 'CatBoost', 'LinearRegression'],
     help="Ensembleは3つのモデルの加重平均です"
 )
 
@@ -568,6 +570,7 @@ with st.expander("ℹ️ モデル情報"):
     | **MLP** | 0.9150 ± 0.0116 | 0.7830 ± 0.0342 | 0.6042 ± 0.0271 |
     | **Extra Trees** | 0.9145 ± 0.0135 | 0.7846 ± 0.0439 | 0.5766 ± 0.0291 |
     | **CatBoost** | 0.9107 ± 0.0131 | 0.8027 ± 0.0410 | 0.6213 ± 0.0340 |
+    | **Linear Regression** | - | - | - |
     
     ### ファイル一括予測の使い方
     
@@ -585,6 +588,14 @@ with st.expander("ℹ️ モデル情報"):
     - **AL**: 眼軸長（mm）
     - **LT**: 水晶体厚（mm）
     - **ACD**: 前房深度（mm）
+    
+    ### モデルについて
+    
+    - **Ensemble（推奨）**: MLP、ExtraTrees、CatBoostの加重平均
+    - **LinearRegression**: 線形回帰モデル（解釈性が高い）
+    - **MLP**: 多層パーセプトロン（ニューラルネットワーク）
+    - **ExtraTrees**: 極端にランダム化された決定木
+    - **CatBoost**: 勾配ブースティング
     """)
 
 st.sidebar.markdown("---")
