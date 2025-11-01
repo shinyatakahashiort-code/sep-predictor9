@@ -98,15 +98,22 @@ class SEPredictor:
         
         # 値の範囲チェック
         for col in self.feature_columns:
-            value = input_data[col]
-            stats = self.data_stats['features'][col]
-            min_val = stats['min']
-            max_val = stats['max']
-            
-            if value < min_val * 0.5 or value > max_val * 1.5:
-                result['warnings'].append(
-                    f"{col}={value} は通常範囲外です (通常: {min_val:.2f} - {max_val:.2f})"
-                )
+            try:
+                # 値を明示的にfloatに変換
+                value = float(input_data[col])
+                stats = self.data_stats['features'][col]
+                
+                # 統計値も明示的にfloatに変換
+                min_val = float(stats['min'])
+                max_val = float(stats['max'])
+                
+                if value < min_val * 0.5 or value > max_val * 1.5:
+                    result['warnings'].append(
+                        f"{col}={value} は通常範囲外です (通常: {min_val:.2f} - {max_val:.2f})"
+                    )
+            except (ValueError, TypeError, KeyError) as e:
+                # エラーが発生した場合は警告を出すが、処理は続行
+                result['warnings'].append(f"{col} の検証をスキップしました")
         
         return result
 
