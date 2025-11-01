@@ -1,5 +1,5 @@
 {
-  "created_at": "2025-10-29T02:43:14.302173",
+  "created_at": "2025-11-01T04:08:51.810538",
   "created_in": "Google Colab",
   "feature_columns": [
     "年齢",
@@ -13,8 +13,8 @@
   "n_samples": 1483,
   "models": {
     "MLP": {
-      "model_file": "mlp_model.pkl",
-      "scaler_file": "mlp_scaler.pkl",
+      "model_file": "MLP.pkl",
+      "scaler_file": "MLP_scaler.pkl",
       "needs_scaling": true,
       "performance": {
         "outer_r2_mean": 0.915,
@@ -26,7 +26,7 @@
       }
     },
     "ExtraTrees": {
-      "model_file": "extratrees_model.pkl",
+      "model_file": "ExtraTrees.pkl",
       "scaler_file": null,
       "needs_scaling": false,
       "performance": {
@@ -39,7 +39,7 @@
       }
     },
     "CatBoost": {
-      "model_file": "catboost_model.pkl",
+      "model_file": "CatBoost.pkl",
       "scaler_file": null,
       "needs_scaling": false,
       "performance": {
@@ -49,6 +49,19 @@
         "outer_rmse_std": 0.041,
         "outer_mae_mean": 0.6213,
         "outer_mae_std": 0.034
+      }
+    },
+    "LinearRegression": {
+      "model_file": "LinearRegression.pkl",
+      "scaler_file": "LinearRegression_scaler.pkl",
+      "needs_scaling": true,
+      "performance": {
+        "outer_r2_mean": 0.9023613189683207,
+        "outer_r2_std": 0.008815606031143371,
+        "outer_rmse_mean": 0.8427608981432816,
+        "outer_rmse_std": 0.03786657868245145,
+        "outer_mae_mean": 0.6492899504718984,
+        "outer_mae_std": 0.028766559921188928
       }
     }
   },
